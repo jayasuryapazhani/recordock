@@ -1,8 +1,10 @@
 import { saveLatestRecording } from "../storage/recordingBlobStore";
+
 import type {
   MessageResponse,
   OffscreenCommand,
   OffscreenEvent,
+  RecorderRuntimeStatus,
 } from "../types/messages";
 
 let capturedStream: MediaStream | null = null;
@@ -10,6 +12,9 @@ let mediaRecorder: MediaRecorder | null = null;
 let recordingChunks: Blob[] = [];
 let recordingFailed = false;
 
+function getRecorderRuntimeStatus(): RecorderRuntimeStatus {
+  return mediaRecorder?.state ?? "inactive";
+}
 function selectSupportedMimeType(): string | undefined {
   const mimeTypes = [
     "video/webm;codecs=vp9,opus",
@@ -247,7 +252,14 @@ chrome.runtime.onMessage.addListener(
     if (message.target !== "offscreen") {
       return false;
     }
+      if (message.type === "GET_MEDIA_RECORDER_STATUS") {
+        sendResponse({
+          ok: true,
+          recorderStatus: getRecorderRuntimeStatus(),
+        } satisfies MessageResponse);
 
+        return false;
+      }
     if (message.type === "STOP_MEDIA_RECORDER") {
       sendResponse(stopCurrentRecording());
       return false;
