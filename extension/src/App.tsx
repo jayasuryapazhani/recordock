@@ -19,12 +19,12 @@ import {
 } from "./types/recording";
 import { formatDuration } from "./utils/formatDuration";
 import { formatFileSize } from "./utils/formatFileSize";
+
 const supportedSources = [
   "Browser tab",
   "Application window",
   "Complete monitor",
 ];
-
 
 function App() {
   const [recordingState, setRecordingState] =
@@ -46,8 +46,9 @@ function App() {
   const [previewError, setPreviewError] = useState<
     string | null
   >(null);
-const [captureAudio, setCaptureAudio] =
-  useState(true);
+
+  const [captureAudio, setCaptureAudio] =
+    useState(true);
 
   useEffect(() => {
     void getRecordingState()
@@ -202,7 +203,7 @@ const [captureAudio, setCaptureAudio] =
     });
 
     try {
-await requestStartRecording(captureAudio);
+      await requestStartRecording(captureAudio);
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -282,26 +283,26 @@ await requestStartRecording(captureAudio);
     downloadLink.remove();
   };
 
-const handleExpand = (): void => {
-  const previewPageUrl =
-    chrome.runtime.getURL("preview.html");
+  const handleExpand = (): void => {
+    const previewPageUrl =
+      chrome.runtime.getURL("preview.html");
 
-  void chrome.windows
-    .create({
-      url: previewPageUrl,
-      type: "popup",
-      state: "fullscreen",
-      focused: true,
-    })
-    .catch((error: unknown) => {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Recordock could not open the expanded preview.";
+    void chrome.windows
+      .create({
+        url: previewPageUrl,
+        type: "popup",
+        state: "fullscreen",
+        focused: true,
+      })
+      .catch((error: unknown) => {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Recordock could not open the expanded preview.";
 
-      setPreviewError(errorMessage);
-    });
-};
+        setPreviewError(errorMessage);
+      });
+  };
 
   const handleRecordAgain = (): void => {
     void deleteLatestRecording()
@@ -329,20 +330,26 @@ const handleExpand = (): void => {
   return (
     <main className="popup">
       <header className="popup__header">
-        <div
-          className="brand-mark"
-          aria-hidden="true"
-        >
-          <span className="brand-mark__record-dot" />
+        <div className="popup__identity">
+          <img
+            className="app-logo"
+            src="/icons/icon128.png"
+            alt=""
+            aria-hidden="true"
+          />
+
+          <div className="popup__header-copy">
+            <h1>Recordock</h1>
+
+            <p className="tagline">
+              Record your screen. Keep it local.
+            </p>
+          </div>
         </div>
 
-        <div>
-          <h1>Recordock</h1>
-
-          <p className="tagline">
-            Record your screen. Keep it local.
-          </p>
-        </div>
+        <span className="local-pill">
+          Local only
+        </span>
       </header>
 
       <section
@@ -351,6 +358,7 @@ const handleExpand = (): void => {
       >
         <div
           className={`status-chip status-chip--${recordingState.status}`}
+          aria-live="polite"
         >
           <span className="status-chip__dot" />
 
@@ -359,13 +367,27 @@ const handleExpand = (): void => {
 
         {isRecording && (
           <>
-            <h2 id="recorder-heading">
-              Recording in progress
-            </h2>
+            <div className="recording-heading">
+              <span className="section-kicker">
+                Active recording
+              </span>
 
-            <div className="recording-timer">
-              {formatDuration(elapsedSeconds)}
+              <h2 id="recorder-heading">
+                Recording in progress
+              </h2>
             </div>
+
+            <div className="recording-display">
+              <div className="recording-status-label">
+                <span className="recording-pulse" />
+
+                Recording
+              </div>
+
+              <div className="recording-timer">
+                {formatDuration(elapsedSeconds)}
+              </div>
+
               <p
                 className={`audio-status ${
                   recordingState.hasAudio
@@ -374,39 +396,70 @@ const handleExpand = (): void => {
                 }`}
               >
                 <span aria-hidden="true">
-                  {recordingState.hasAudio ? "●" : "○"}
+                  {recordingState.hasAudio
+                    ? "●"
+                    : "○"}
                 </span>
 
                 {recordingState.hasAudio
-                  ? "Audio captured"
+                  ? "Screen audio included"
                   : "Video only"}
               </p>
+            </div>
+
             <button
               className="primary-button primary-button--stop"
               type="button"
               onClick={handleStop}
             >
+              <span
+                className="button-stop-icon"
+                aria-hidden="true"
+              />
+
               Stop Recording
             </button>
           </>
         )}
 
         {isSelecting && (
-          <>
+          <div className="state-panel">
+            <div
+              className="selection-indicator"
+              aria-hidden="true"
+            >
+              <span />
+              <span />
+              <span />
+            </div>
+
+            <span className="section-kicker">
+              Waiting for selection
+            </span>
+
             <h2 id="recorder-heading">
               Choose what to record
             </h2>
 
             <p className="state-message">
-              Select what to record. To include sound,
-              enable Share tab audio or Share system audio
-              in Chrome’s picker when available.
+              Select a browser tab, application window, or
+              monitor. Enable audio in Chrome’s picker when
+              you want to include source sound.
             </p>
-          </>
+          </div>
         )}
 
         {isStopping && (
-          <>
+          <div className="state-panel">
+            <div
+              className="processing-indicator"
+              aria-label="Processing recording"
+            />
+
+            <span className="section-kicker">
+              Processing locally
+            </span>
+
             <h2 id="recorder-heading">
               Preparing recording
             </h2>
@@ -414,41 +467,69 @@ const handleExpand = (): void => {
             <p className="state-message">
               Recordock is creating your local WebM file.
             </p>
-
-            <div
-              className="processing-indicator"
-              aria-label="Processing recording"
-            />
-          </>
+          </div>
         )}
 
         {isReady && (
           <>
-            <h2 id="recorder-heading">
-              Recording ready
-            </h2>
+            <div className="ready-heading">
+              <div
+                className="ready-icon"
+                aria-hidden="true"
+              >
+                ✓
+              </div>
+
+              <div>
+                <span className="section-kicker">
+                  Recording ready
+                </span>
+
+                <h2 id="recorder-heading">
+                  Preview and download
+                </h2>
+
+                <p>
+                  Review your recording before saving it.
+                </p>
+              </div>
+            </div>
 
             <div className="ready-details">
-              <p>
-                <strong>File:</strong>{" "}
-                {recordingState.filename}
-              </p>
+              <div className="ready-detail">
+                <span>File</span>
+
+                <strong
+                  title={
+                    recordingState.filename ?? ""
+                  }
+                >
+                  {recordingState.filename}
+                </strong>
+              </div>
 
               {recordingState.fileSizeBytes !== null && (
-                <p>
-                  <strong>Size:</strong>{" "}
-                  {formatFileSize(
-                    recordingState.fileSizeBytes,
-                  )}
-                </p>
+                <div className="ready-detail">
+                  <span>Size</span>
+
+                  <strong>
+                    {formatFileSize(
+                      recordingState.fileSizeBytes,
+                    )}
+                  </strong>
+                </div>
               )}
+
+              <div className="ready-detail">
+                <span>Audio</span>
+
+                <strong>
+                  {recordingState.hasAudio
+                    ? "Screen audio included"
+                    : "Video only"}
+                </strong>
+              </div>
             </div>
-              <p>
-                <strong>Audio:</strong>{" "}
-                {recordingState.hasAudio
-                  ? "Included"
-                  : "Video only"}
-              </p>            
 
             {previewLoading && (
               <p className="state-message">
@@ -464,14 +545,14 @@ const handleExpand = (): void => {
 
             {previewUrl && (
               <div className="preview-panel">
-                  <video
-                    className="recording-preview"
-                    src={previewUrl}
-                    controls
-                    controlsList="nofullscreen noremoteplayback"
-                    playsInline
-                    preload="metadata"
-                  >
+                <video
+                  className="recording-preview"
+                  src={previewUrl}
+                  controls
+                  controlsList="nofullscreen noremoteplayback"
+                  playsInline
+                  preload="metadata"
+                >
                   Your browser does not support video
                   playback.
                 </video>
@@ -482,6 +563,10 @@ const handleExpand = (): void => {
                     type="button"
                     onClick={handleDownload}
                   >
+                    <span aria-hidden="true">
+                      ↓
+                    </span>
+
                     Download
                   </button>
 
@@ -490,6 +575,10 @@ const handleExpand = (): void => {
                     type="button"
                     onClick={handleExpand}
                   >
+                    <span aria-hidden="true">
+                      ↗
+                    </span>
+
                     Expand
                   </button>
                 </div>
@@ -501,6 +590,10 @@ const handleExpand = (): void => {
               type="button"
               onClick={handleRecordAgain}
             >
+              <span aria-hidden="true">
+                ↻
+              </span>
+
               Record Again
             </button>
           </>
@@ -511,9 +604,21 @@ const handleExpand = (): void => {
           !isStopping &&
           !isReady && (
             <>
-              <h2 id="recorder-heading">
-                Start a screen recording
-              </h2>
+              <div className="recorder-heading">
+                <span className="section-kicker">
+                  Recording options
+                </span>
+
+                <h2 id="recorder-heading">
+                  Choose what to include
+                </h2>
+
+                <p className="recorder-card__description">
+                  Chrome will ask you to choose a browser
+                  tab, application window, or monitor after
+                  you start.
+                </p>
+              </div>
 
               {recordingState.status === "error" && (
                 <p
@@ -524,68 +629,116 @@ const handleExpand = (): void => {
                 </p>
               )}
 
-              <p className="recorder-card__description">
-                Record one selected browser tab,
-                application window, or complete monitor.
-              </p>
-
-              <ul className="source-list">
+              <ul
+                className="source-list"
+                aria-label="Supported recording sources"
+              >
                 {supportedSources.map((source) => (
                   <li key={source}>
-                    <span aria-hidden="true">✓</span>
+                    <span
+                      className="source-check"
+                      aria-hidden="true"
+                    >
+                      ✓
+                    </span>
+
                     {source}
                   </li>
                 ))}
               </ul>
-                <fieldset className="audio-options">
-                  <legend>Recording audio</legend>
 
-                  <label className="audio-option">
-                    <input
-                      type="radio"
-                      name="recording-audio"
-                      checked={captureAudio}
-                      onChange={() => {
-                        setCaptureAudio(true);
-                      }}
-                    />
+              <fieldset className="recording-options">
+                <legend>Recording options</legend>
 
-                    <span>
-                      <strong>Capture available audio</strong>
+                <label
+                  className={`recording-option ${
+                    captureAudio
+                      ? "recording-option--selected"
+                      : ""
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={captureAudio}
+                    onChange={(event) => {
+                      setCaptureAudio(
+                        event.target.checked,
+                      );
+                    }}
+                  />
 
-                      <small>
-                        Request tab or system audio. You must also
-                        enable audio in Chrome’s screen picker.
-                      </small>
-                    </span>
-                  </label>
+                  <span className="option-copy">
+                    <strong>Screen audio</strong>
 
-                  <label className="audio-option">
-                    <input
-                      type="radio"
-                      name="recording-audio"
-                      checked={!captureAudio}
-                      onChange={() => {
-                        setCaptureAudio(false);
-                      }}
-                    />
+                    <small>
+                      Request available tab or system sound
+                      from the selected source.
+                    </small>
+                  </span>
+                </label>
 
-                    <span>
-                      <strong>No audio</strong>
+                <label className="recording-option recording-option--disabled">
+                  <input
+                    type="checkbox"
+                    disabled
+                  />
 
-                      <small>
-                        Record the selected screen as video only.
-                      </small>
-                    </span>
-                  </label>
-                </fieldset>
+                  <span className="option-copy">
+                    <strong>
+                      Microphone
+
+                      <span className="coming-soon">
+                        Later
+                      </span>
+                    </strong>
+
+                    <small>
+                      Microphone capture will be added in a
+                      later Recordock release.
+                    </small>
+                  </span>
+                </label>
+
+                <label className="recording-option recording-option--disabled">
+                  <input
+                    type="checkbox"
+                    disabled
+                  />
+
+                  <span className="option-copy">
+                    <strong>
+                      Camera overlay
+
+                      <span className="coming-soon">
+                        Later
+                      </span>
+                    </strong>
+
+                    <small>
+                      Add a movable camera bubble in a
+                      future release.
+                    </small>
+                  </span>
+                </label>
+              </fieldset>
+
               <button
                 className="primary-button"
                 type="button"
                 onClick={handleStart}
               >
+                <span
+                  className="button-record-icon"
+                  aria-hidden="true"
+                />
+
                 Start Recording
               </button>
+
+              <p className="local-recording-note">
+                Your recording stays on this device until
+                you download it.
+              </p>
             </>
           )}
       </section>
@@ -595,15 +748,15 @@ const handleExpand = (): void => {
           className="privacy-notice__icon"
           aria-hidden="true"
         >
-          ◉
+          ✓
         </span>
 
         <div>
-          <strong>Local by design</strong>
+          <strong>Privacy by design</strong>
 
           <p>
-            Recordings are processed locally and remain
-            on your device.
+            Recordings are processed locally and remain on
+            your device.
           </p>
         </div>
       </footer>

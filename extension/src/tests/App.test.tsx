@@ -33,21 +33,28 @@ vi.mock("../popup/popupMessaging", () => ({
     mocks.requestStopRecording,
 }));
 
-vi.mock("../storage/recordingBlobStore", () => ({
-  getLatestRecording: mocks.getLatestRecording,
-  deleteLatestRecording:
-    mocks.deleteLatestRecording,
-}));
+vi.mock(
+  "../storage/recordingBlobStore",
+  () => ({
+    getLatestRecording:
+      mocks.getLatestRecording,
+    deleteLatestRecording:
+      mocks.deleteLatestRecording,
+  }),
+);
 
-function setInitialState(
-  state: RecordingState,
-): void {
-  mocks.getRecordingState.mockResolvedValue(state);
+function createRecordingState(
+  state: Partial<RecordingState>,
+): RecordingState {
+  return {
+    ...IDLE_RECORDING_STATE,
+    ...state,
+  };
 }
 
 describe("Recordock popup states", () => {
   beforeEach(() => {
-    setInitialState({
+    mocks.getRecordingState.mockResolvedValue({
       ...IDLE_RECORDING_STATE,
     });
 
@@ -59,12 +66,12 @@ describe("Recordock popup states", () => {
       undefined,
     );
 
-    mocks.deleteLatestRecording.mockResolvedValue(
-      undefined,
-    );
-
     mocks.getLatestRecording.mockResolvedValue(
       null,
+    );
+
+    mocks.deleteLatestRecording.mockResolvedValue(
+      undefined,
     );
   });
 
@@ -73,15 +80,9 @@ describe("Recordock popup states", () => {
 
     expect(
       await screen.findByRole("heading", {
-        name: "Start a screen recording",
+        name: "Choose what to include",
       }),
     ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", {
-        name: "Start Recording",
-      }),
-    ).toBeEnabled();
 
     expect(
       screen.getByText("Browser tab"),
@@ -95,68 +96,80 @@ describe("Recordock popup states", () => {
       screen.getByText("Complete monitor"),
     ).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("radio", {
-        name: /capture available audio/i,
-      }),
-    ).toBeChecked();
+    const screenAudioCheckbox =
+      screen.getByRole("checkbox", {
+        name: /screen audio/i,
+      });
+
+    expect(screenAudioCheckbox).toBeChecked();
+    expect(screenAudioCheckbox).toBeEnabled();
 
     expect(
-      screen.getByRole("radio", {
-        name: /no audio/i,
+      screen.getByRole("checkbox", {
+        name: /microphone/i,
       }),
-    ).not.toBeChecked();
+    ).toBeDisabled();
+
+    expect(
+      screen.getByRole("checkbox", {
+        name: /camera overlay/i,
+      }),
+    ).toBeDisabled();
+
+    expect(
+      screen.getByRole("button", {
+        name: "Start Recording",
+      }),
+    ).toBeEnabled();
+
+    expect(
+      screen.getByText("Privacy by design"),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        /recordings are processed locally and remain on your device/i,
+      ),
+    ).toBeInTheDocument();
   });
 
-  it(
-    "starts a video-only recording when No audio is selected",
-    async () => {
-      const user = userEvent.setup();
+  it("starts a video-only recording when screen audio is disabled", async () => {
+    const user = userEvent.setup();
 
-      render(<App />);
+    render(<App />);
 
-      await screen.findByRole("heading", {
-        name: "Start a screen recording",
+    await screen.findByRole("heading", {
+      name: "Choose what to include",
+    });
+
+    const screenAudioCheckbox =
+      screen.getByRole("checkbox", {
+        name: /screen audio/i,
       });
 
-      const noAudioOption = screen.getByRole(
-        "radio",
-        {
-          name: /no audio/i,
-        },
-      );
+    await user.click(screenAudioCheckbox);
 
-      await user.click(noAudioOption);
+    expect(screenAudioCheckbox).not.toBeChecked();
 
-      expect(noAudioOption).toBeChecked();
+    await user.click(
+      screen.getByRole("button", {
+        name: "Start Recording",
+      }),
+    );
 
-      await user.click(
-        screen.getByRole("button", {
-          name: "Start Recording",
-        }),
-      );
-
-      await waitFor(() => {
-        expect(
-          mocks.requestStartRecording,
-        ).toHaveBeenCalledTimes(1);
-
-        expect(
-          mocks.requestStartRecording,
-        ).toHaveBeenCalledWith(false);
-      });
-    },
-  );
+    await waitFor(() => {
+      expect(
+        mocks.requestStartRecording,
+      ).toHaveBeenCalledWith(false);
+    });
+  });
 
   it("renders the selecting state", async () => {
-    setInitialState({
-      status: "selecting",
-      startedAt: null,
-      filename: null,
-      fileSizeBytes: null,
-      hasAudio: null,
-      errorMessage: null,
-    });
+    mocks.getRecordingState.mockResolvedValue(
+      createRecordingState({
+        status: "selecting",
+      }),
+    );
 
     render(<App />);
 
@@ -168,70 +181,69 @@ describe("Recordock popup states", () => {
 
     expect(
       screen.getByText(
-        /select what to record.*share tab audio.*share system audio/i,
+        /select a browser tab, application window, or monitor/i,
       ),
     ).toBeInTheDocument();
 
     expect(
-      screen.queryByRole("button", {
-        name: "Start Recording",
-      }),
-    ).not.toBeInTheDocument();
+      screen.getByText(
+        /enable audio in chrome’s picker when you want to include source sound/i,
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("Waiting for selection"),
+    ).toBeInTheDocument();
   });
 
-  it(
-    "renders the recording state with restored timer",
-    async () => {
-      const currentTime = new Date(
-        "2026-07-29T12:00:00",
-      ).getTime();
+  it("renders the recording state with restored timer", async () => {
+    const currentTimestamp =
+      1_775_000_125_000;
 
-      vi.spyOn(Date, "now").mockReturnValue(
-        currentTime,
-      );
+    vi.spyOn(Date, "now").mockReturnValue(
+      currentTimestamp,
+    );
 
-      setInitialState({
+    mocks.getRecordingState.mockResolvedValue(
+      createRecordingState({
         status: "recording",
-        startedAt: currentTime - 125_000,
-        filename: null,
-        fileSizeBytes: null,
+        startedAt:
+          currentTimestamp - 125_000,
         hasAudio: true,
-        errorMessage: null,
-      });
+      }),
+    );
 
-      render(<App />);
+    render(<App />);
 
-      expect(
-        await screen.findByRole("heading", {
-          name: "Recording in progress",
-        }),
-      ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", {
+        name: "Recording in progress",
+      }),
+    ).toBeInTheDocument();
 
-      expect(
-        screen.getByText("Audio captured"),
-      ).toBeInTheDocument();
+    expect(
+      screen.getByText("00:02:05"),
+    ).toBeInTheDocument();
 
-      expect(
-        screen.getByText("00:02:05"),
-      ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Screen audio included",
+      ),
+    ).toBeInTheDocument();
 
-      expect(
-        screen.getByRole("button", {
-          name: "Stop Recording",
-        }),
-      ).toBeEnabled();
-    },
-  );
+    expect(
+      screen.getByRole("button", {
+        name: "Stop Recording",
+      }),
+    ).toBeEnabled();
+  });
 
   it("renders the stopping state", async () => {
-    setInitialState({
-      status: "stopping",
-      startedAt: Date.now() - 10_000,
-      filename: null,
-      fileSizeBytes: null,
-      hasAudio: true,
-      errorMessage: null,
-    });
+    mocks.getRecordingState.mockResolvedValue(
+      createRecordingState({
+        status: "stopping",
+      }),
+    );
 
     render(<App />);
 
@@ -243,7 +255,7 @@ describe("Recordock popup states", () => {
 
     expect(
       screen.getByText(
-        /creating your local WebM file/i,
+        /creating your local webm file/i,
       ),
     ).toBeInTheDocument();
 
@@ -252,99 +264,108 @@ describe("Recordock popup states", () => {
         "Processing recording",
       ),
     ).toBeInTheDocument();
-
-    expect(
-      screen.queryByRole("button", {
-        name: "Stop Recording",
-      }),
-    ).not.toBeInTheDocument();
   });
 
-  it(
-    "renders the ready state with preview controls",
-    async () => {
-      const filename =
-        "recordock-20260729-120000.webm";
+  it("renders the ready state with preview controls", async () => {
+    const recordingBlob = new Blob(
+      ["recordock-preview"],
+      {
+        type: "video/webm",
+      },
+    );
 
-      setInitialState({
+    mocks.getRecordingState.mockResolvedValue(
+      createRecordingState({
         status: "ready",
-        startedAt: null,
-        filename,
+        filename:
+          "recordock-20260729-120000.webm",
         fileSizeBytes: 1_048_576,
         hasAudio: false,
-        errorMessage: null,
-      });
+      }),
+    );
 
-      mocks.getLatestRecording.mockResolvedValue({
-        id: "latest",
-        blob: new Blob(["recording-data"], {
-          type: "video/webm",
-        }),
-        filename,
-        mimeType: "video/webm",
-        fileSizeBytes: 1_048_576,
-        createdAt: Date.now(),
-      });
-
-      const { container } = render(<App />);
-
-      expect(
-        await screen.findByRole("heading", {
-          name: "Recording ready",
-        }),
-      ).toBeInTheDocument();
-
-      expect(
-        screen.getByText("Video only"),
-      ).toBeInTheDocument();
-
-      expect(
-        screen.getByText(/1\.00 MB/i),
-      ).toBeInTheDocument();
-
-      await waitFor(() => {
-        expect(
-          container.querySelector("video"),
-        ).not.toBeNull();
-      });
-
-      expect(
-        screen.getByRole("button", {
-          name: "Download",
-        }),
-      ).toBeEnabled();
-
-      expect(
-        screen.getByRole("button", {
-          name: "Expand",
-        }),
-      ).toBeEnabled();
-
-      expect(
-        screen.getByRole("button", {
-          name: "Record Again",
-        }),
-      ).toBeEnabled();
-    },
-  );
-
-  it("renders the error state", async () => {
-    setInitialState({
-      status: "error",
-      startedAt: null,
-      filename: null,
-      fileSizeBytes: null,
-      hasAudio: null,
-      errorMessage:
-        "The recording session ended unexpectedly.",
+    mocks.getLatestRecording.mockResolvedValue({
+      id: "latest",
+      blob: recordingBlob,
+      filename:
+        "recordock-20260729-120000.webm",
+      mimeType: "video/webm",
+      fileSizeBytes: recordingBlob.size,
+      createdAt: 1_775_000_000_000,
     });
 
     render(<App />);
 
     expect(
-      await screen.findByRole("alert"),
+      await screen.findByRole("heading", {
+        name: "Preview and download",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("Recording ready"),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        "recordock-20260729-120000.webm",
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("1.00 MB"),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("Video only"),
+    ).toBeInTheDocument();
+
+    expect(
+      await screen.findByRole("button", {
+        name: "Download",
+      }),
+    ).toBeEnabled();
+
+    expect(
+      screen.getByRole("button", {
+        name: "Expand",
+      }),
+    ).toBeEnabled();
+
+    expect(
+      screen.getByRole("button", {
+        name: "Record Again",
+      }),
+    ).toBeEnabled();
+
+    expect(
+      document.querySelector(
+        "video.recording-preview",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("renders the error state", async () => {
+    mocks.getRecordingState.mockResolvedValue(
+      createRecordingState({
+        status: "error",
+        errorMessage:
+          "Recordock could not start recording.",
+      }),
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Choose what to include",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("alert"),
     ).toHaveTextContent(
-      "The recording session ended unexpectedly.",
+      "Recordock could not start recording.",
     );
 
     expect(
