@@ -11,18 +11,30 @@ let capturedStream: MediaStream | null = null;
 let mediaRecorder: MediaRecorder | null = null;
 let recordingChunks: Blob[] = [];
 let recordingFailed = false;
-
+interface RecordockDisplayMediaOptions
+  extends DisplayMediaStreamOptions {
+  systemAudio?: "include" | "exclude";
+  windowAudio?: "system" | "window" | "exclude";
+}
 function getRecorderRuntimeStatus(): RecorderRuntimeStatus {
   return mediaRecorder?.state ?? "inactive";
 }
-function selectSupportedMimeType(): string | undefined {
-  const mimeTypes = [
-    "video/webm;codecs=vp9,opus",
-    "video/webm;codecs=vp8,opus",
-    "video/webm;codecs=vp9",
-    "video/webm;codecs=vp8",
-    "video/webm",
-  ];
+function selectSupportedMimeType(
+  hasAudio: boolean,
+): string | undefined {
+  const mimeTypes = hasAudio
+    ? [
+        "video/webm;codecs=vp9,opus",
+        "video/webm;codecs=vp8,opus",
+        "video/webm;codecs=vp9",
+        "video/webm;codecs=vp8",
+        "video/webm",
+      ]
+    : [
+        "video/webm;codecs=vp9",
+        "video/webm;codecs=vp8",
+        "video/webm",
+      ];
 
   return mimeTypes.find((mimeType) =>
     MediaRecorder.isTypeSupported(mimeType),
@@ -157,8 +169,10 @@ function stopCurrentRecording(): MessageResponse {
   };
 }
 
-async function startMediaRecorder(): Promise<void> {
-  if (
+async function startMediaRecorder(
+  captureAudio: boolean,
+): Promise<void> {
+    if (
     mediaRecorder &&
     mediaRecorder.state !== "inactive"
   ) {
@@ -169,11 +183,36 @@ async function startMediaRecorder(): Promise<void> {
   recordingFailed = false;
 
   try {
-    capturedStream =
-      await navigator.mediaDevices.getDisplayMedia({
-        video: true,
-        audio: true,
-      });
+const displayMediaOptions: RecordockDisplayMediaOptions = {
+  video: true,
+  audio: captureAudio,
+  systemAudio: captureAudio
+    ? "include"
+    : "exclude",
+  windowAudio: captureAudio
+    ? "system"
+    : "exclude",
+};
+
+capturedStream =
+  await navigator.mediaDevices.getDisplayMedia(
+    displayMediaOptions,
+  );
+
+  const audioTracks =
+  capturedStream.getAudioTracks();
+
+console.info("Recordock audio diagnostics", {
+  audioRequested: captureAudio,
+  audioTrackCount: audioTracks.length,
+  audioTracks: audioTracks.map((track) => ({
+    label: track.label,
+    enabled: track.enabled,
+    muted: track.muted,
+    readyState: track.readyState,
+  })),
+});
+
   } catch (error) {
     if (
       error instanceof DOMException &&
@@ -196,9 +235,10 @@ async function startMediaRecorder(): Promise<void> {
       "Recordock could not access the selected screen.",
     );
   }
-
-  const supportedMimeType = selectSupportedMimeType();
-
+const hasAudio =
+  capturedStream.getAudioTracks().length > 0;
+const supportedMimeType =
+  selectSupportedMimeType(hasAudio);
   mediaRecorder = supportedMimeType
     ? new MediaRecorder(capturedStream, {
         mimeType: supportedMimeType,
@@ -235,11 +275,12 @@ async function startMediaRecorder(): Promise<void> {
 
   mediaRecorder.start(1000);
 
-  await sendToBackground({
-    target: "background",
-    type: "RECORDING_STARTED",
-    startedAt: Date.now(),
-  });
+    await sendToBackground({
+      target: "background",
+      type: "RECORDING_STARTED",
+      startedAt: Date.now(),
+      hasAudio,
+    });
 }
 chrome.runtime.onMessage.addListener(
   (
@@ -266,7 +307,7 @@ chrome.runtime.onMessage.addListener(
     }
 
     if (message.type === "START_MEDIA_RECORDER") {
-void startMediaRecorder()
+void startMediaRecorder(message.captureAudio)
         .then(() => {
           sendResponse({
             ok: true,

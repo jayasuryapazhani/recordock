@@ -1,3 +1,4 @@
+import userEvent from "@testing-library/user-event";
 import {
   render,
   screen,
@@ -93,7 +94,59 @@ describe("Recordock popup states", () => {
     expect(
       screen.getByText("Complete monitor"),
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("radio", {
+        name: /capture available audio/i,
+      }),
+    ).toBeChecked();
+
+    expect(
+      screen.getByRole("radio", {
+        name: /no audio/i,
+      }),
+    ).not.toBeChecked();
   });
+
+  it(
+    "starts a video-only recording when No audio is selected",
+    async () => {
+      const user = userEvent.setup();
+
+      render(<App />);
+
+      await screen.findByRole("heading", {
+        name: "Start a screen recording",
+      });
+
+      const noAudioOption = screen.getByRole(
+        "radio",
+        {
+          name: /no audio/i,
+        },
+      );
+
+      await user.click(noAudioOption);
+
+      expect(noAudioOption).toBeChecked();
+
+      await user.click(
+        screen.getByRole("button", {
+          name: "Start Recording",
+        }),
+      );
+
+      await waitFor(() => {
+        expect(
+          mocks.requestStartRecording,
+        ).toHaveBeenCalledTimes(1);
+
+        expect(
+          mocks.requestStartRecording,
+        ).toHaveBeenCalledWith(false);
+      });
+    },
+  );
 
   it("renders the selecting state", async () => {
     setInitialState({
@@ -101,6 +154,7 @@ describe("Recordock popup states", () => {
       startedAt: null,
       filename: null,
       fileSizeBytes: null,
+      hasAudio: null,
       errorMessage: null,
     });
 
@@ -114,7 +168,7 @@ describe("Recordock popup states", () => {
 
     expect(
       screen.getByText(
-        /select a browser tab, application window/i,
+        /select what to record.*share tab audio.*share system audio/i,
       ),
     ).toBeInTheDocument();
 
@@ -125,39 +179,49 @@ describe("Recordock popup states", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders the recording state with restored timer", async () => {
-    const currentTime = new Date(
-      "2026-07-29T12:00:00",
-    ).getTime();
+  it(
+    "renders the recording state with restored timer",
+    async () => {
+      const currentTime = new Date(
+        "2026-07-29T12:00:00",
+      ).getTime();
 
-    vi.spyOn(Date, "now").mockReturnValue(currentTime);
+      vi.spyOn(Date, "now").mockReturnValue(
+        currentTime,
+      );
 
-    setInitialState({
-      status: "recording",
-      startedAt: currentTime - 125_000,
-      filename: null,
-      fileSizeBytes: null,
-      errorMessage: null,
-    });
+      setInitialState({
+        status: "recording",
+        startedAt: currentTime - 125_000,
+        filename: null,
+        fileSizeBytes: null,
+        hasAudio: true,
+        errorMessage: null,
+      });
 
-    render(<App />);
+      render(<App />);
 
-    expect(
-      await screen.findByRole("heading", {
-        name: "Recording in progress",
-      }),
-    ).toBeInTheDocument();
+      expect(
+        await screen.findByRole("heading", {
+          name: "Recording in progress",
+        }),
+      ).toBeInTheDocument();
 
-    expect(
-      screen.getByText("00:02:05"),
-    ).toBeInTheDocument();
+      expect(
+        screen.getByText("Audio captured"),
+      ).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("button", {
-        name: "Stop Recording",
-      }),
-    ).toBeEnabled();
-  });
+      expect(
+        screen.getByText("00:02:05"),
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getByRole("button", {
+          name: "Stop Recording",
+        }),
+      ).toBeEnabled();
+    },
+  );
 
   it("renders the stopping state", async () => {
     setInitialState({
@@ -165,6 +229,7 @@ describe("Recordock popup states", () => {
       startedAt: Date.now() - 10_000,
       filename: null,
       fileSizeBytes: null,
+      hasAudio: true,
       errorMessage: null,
     });
 
@@ -195,65 +260,73 @@ describe("Recordock popup states", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders the ready state with preview controls", async () => {
-    const filename =
-      "recordock-20260729-120000.webm";
+  it(
+    "renders the ready state with preview controls",
+    async () => {
+      const filename =
+        "recordock-20260729-120000.webm";
 
-    setInitialState({
-      status: "ready",
-      startedAt: null,
-      filename,
-      fileSizeBytes: 1_048_576,
-      errorMessage: null,
-    });
+      setInitialState({
+        status: "ready",
+        startedAt: null,
+        filename,
+        fileSizeBytes: 1_048_576,
+        hasAudio: false,
+        errorMessage: null,
+      });
 
-    mocks.getLatestRecording.mockResolvedValue({
-      id: "latest",
-      blob: new Blob(["recording-data"], {
-        type: "video/webm",
-      }),
-      filename,
-      mimeType: "video/webm",
-      fileSizeBytes: 1_048_576,
-      createdAt: Date.now(),
-    });
+      mocks.getLatestRecording.mockResolvedValue({
+        id: "latest",
+        blob: new Blob(["recording-data"], {
+          type: "video/webm",
+        }),
+        filename,
+        mimeType: "video/webm",
+        fileSizeBytes: 1_048_576,
+        createdAt: Date.now(),
+      });
 
-    const { container } = render(<App />);
+      const { container } = render(<App />);
 
-    expect(
-      await screen.findByRole("heading", {
-        name: "Recording ready",
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText(/1\.00 MB/i),
-    ).toBeInTheDocument();
-
-    await waitFor(() => {
       expect(
-        container.querySelector("video"),
-      ).not.toBeNull();
-    });
+        await screen.findByRole("heading", {
+          name: "Recording ready",
+        }),
+      ).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("button", {
-        name: "Download",
-      }),
-    ).toBeEnabled();
+      expect(
+        screen.getByText("Video only"),
+      ).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("button", {
-        name: "Expand",
-      }),
-    ).toBeEnabled();
+      expect(
+        screen.getByText(/1\.00 MB/i),
+      ).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("button", {
-        name: "Record Again",
-      }),
-    ).toBeEnabled();
-  });
+      await waitFor(() => {
+        expect(
+          container.querySelector("video"),
+        ).not.toBeNull();
+      });
+
+      expect(
+        screen.getByRole("button", {
+          name: "Download",
+        }),
+      ).toBeEnabled();
+
+      expect(
+        screen.getByRole("button", {
+          name: "Expand",
+        }),
+      ).toBeEnabled();
+
+      expect(
+        screen.getByRole("button", {
+          name: "Record Again",
+        }),
+      ).toBeEnabled();
+    },
+  );
 
   it("renders the error state", async () => {
     setInitialState({
@@ -261,6 +334,7 @@ describe("Recordock popup states", () => {
       startedAt: null,
       filename: null,
       fileSizeBytes: null,
+      hasAudio: null,
       errorMessage:
         "The recording session ended unexpectedly.",
     });

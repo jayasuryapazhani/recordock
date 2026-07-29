@@ -13,6 +13,7 @@ export type BackgroundRequest =
   | {
       target: "background";
       type: "START_RECORDING";
+      captureAudio: boolean;
     }
   | {
       target: "background";
@@ -23,6 +24,7 @@ export type OffscreenCommand =
   | {
       target: "offscreen";
       type: "START_MEDIA_RECORDER";
+      captureAudio: boolean;
     }
   | {
       target: "offscreen";
@@ -38,6 +40,7 @@ export type OffscreenEvent =
       target: "background";
       type: "RECORDING_STARTED";
       startedAt: number;
+      hasAudio: boolean;
     }
   | {
       target: "background";
@@ -50,7 +53,6 @@ export type OffscreenEvent =
       type: "RECORDING_FAILED";
       errorMessage: string;
     };
-
 export type RecordockMessage =
   | BackgroundRequest
   | OffscreenCommand
