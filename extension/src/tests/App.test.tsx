@@ -96,25 +96,29 @@ describe("Recordock popup states", () => {
       screen.getByText("Complete monitor"),
     ).toBeInTheDocument();
 
-    const screenAudioCheckbox =
-      screen.getByRole("checkbox", {
+    const screenAudioCheckbox = screen.getByRole(
+      "checkbox",
+      {
         name: /screen audio/i,
-      });
+      },
+    );
 
+    expect(screenAudioCheckbox).toBeInTheDocument();
     expect(screenAudioCheckbox).toBeChecked();
-    expect(screenAudioCheckbox).toBeEnabled();
 
     expect(
-      screen.getByRole("checkbox", {
+      screen.queryByRole("checkbox", {
         name: /microphone/i,
       }),
-    ).toBeDisabled();
+    ).not.toBeInTheDocument();
 
     expect(
-      screen.getByRole("checkbox", {
+      screen.queryByRole("checkbox", {
         name: /camera overlay/i,
       }),
-    ).toBeDisabled();
+    ).not.toBeInTheDocument();
+
+    expect(screen.getAllByRole("checkbox")).toHaveLength(1);
 
     expect(
       screen.getByRole("button", {

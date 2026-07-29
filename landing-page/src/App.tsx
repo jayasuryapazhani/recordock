@@ -51,13 +51,13 @@ const features = [
     number: "05",
     title: "No account required",
     description:
-      "Start recording immediately without registration, authentication, subscriptions, or cloud storage.",
+      "Use the free local recorder without creating an account or connecting cloud storage.",
   },
   {
     number: "06",
     title: "Free version on GitHub",
     description:
-      "Explore the source code for Recordock's free version. Premium features and services will be developed separately.",
+      "Review Recordock's public free-version implementation and technical architecture on GitHub.",
   },
 ];
 
@@ -108,16 +108,6 @@ const faqs = [
     question: "Can Recordock capture screen audio?",
     answer:
       "Yes, when the selected source and browser provide an audio track. You must also enable the audio-sharing option in the browser's source picker.",
-  },
-  {
-    question: "Can Recordock capture my microphone?",
-    answer:
-      "Not in the current release. Microphone capture is planned for a later Recordock version.",
-  },
-  {
-    question: "Does Recordock support a camera overlay?",
-    answer:
-      "Not yet. A movable camera overlay is planned for a later release.",
   },
   {
     question: "What file format does Recordock create?",
@@ -710,76 +700,34 @@ function App() {
                       </p>
                     )}
 
-                    <div className="recording-options">
-                      <label
-                        className={`recording-option ${
-                          captureScreenAudio
-                            ? "recording-option--selected"
-                            : ""
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={captureScreenAudio}
-                          onChange={(event) => {
-                            setCaptureScreenAudio(
-                              event.target.checked,
-                            );
-                          }}
-                        />
+                      <div className="recording-options">
+                        <label
+                          className={`recording-option ${
+                            captureScreenAudio
+                              ? "recording-option--selected"
+                              : ""
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={captureScreenAudio}
+                            onChange={(event) => {
+                              setCaptureScreenAudio(
+                                event.target.checked,
+                              );
+                            }}
+                          />
 
-                        <span className="option-copy">
-                          <strong>Screen audio</strong>
+                          <span className="option-copy">
+                            <strong>Screen audio</strong>
 
-                          <small>
-                            Request available tab or system
-                            sound from the selected source.
-                          </small>
-                        </span>
-                      </label>
-
-                      <label className="recording-option recording-option--disabled">
-                        <input
-                          type="checkbox"
-                          disabled
-                        />
-
-                        <span className="option-copy">
-                          <strong>
-                            Microphone
-                            <span className="coming-soon">
-                              Later
-                            </span>
-                          </strong>
-
-                          <small>
-                            Microphone capture will be added
-                            in a later Recordock release.
-                          </small>
-                        </span>
-                      </label>
-
-                      <label className="recording-option recording-option--disabled">
-                        <input
-                          type="checkbox"
-                          disabled
-                        />
-
-                        <span className="option-copy">
-                          <strong>
-                            Camera overlay
-                            <span className="coming-soon">
-                              Later
-                            </span>
-                          </strong>
-
-                          <small>
-                            Add a movable camera bubble in a
-                            future release.
-                          </small>
-                        </span>
-                      </label>
-                    </div>
+                            <small>
+                              Request available tab or system sound from the
+                              selected source.
+                            </small>
+                          </span>
+                        </label>
+                      </div>
 
                     <button
                       className="recorder-primary-button"
@@ -1080,8 +1028,8 @@ function App() {
                   <h3>No account required</h3>
 
                   <p>
-                    Start recording without registration,
-                    authentication, or a subscription.
+                    Use the free local recorder without creating an
+                    account.
                   </p>
                 </article>
 
@@ -1108,8 +1056,8 @@ function App() {
                     <h3>Free version code</h3>
 
                     <p>
-                      Review the free version implementation on GitHub.
-                      Premium product code will remain private.
+                      Review the public free-version implementation and
+                      technical architecture on GitHub.
                     </p>
                 </article>
               </div>

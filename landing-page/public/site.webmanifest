@@ -1,0 +1,21 @@
+{
+  "name": "Recordock",
+  "short_name": "Recordock",
+  "description": "A private, local-first Chrome screen recorder.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#F4F4F1",
+  "theme_color": "#101713",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
