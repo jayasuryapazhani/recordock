@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 360">
+  <g transform="translate(0 0) scale(0.703125)">
+    <rect x="24" y="24" width="464" height="464" rx="112" fill="#101713"/>
+    <path
+      d="M150 330V188C150 160 172 138 200 138H334C362 138 384 160 384 188V304C384 332 362 354 334 354H252"
+      fill="none"
+      stroke="#F7F7F4"
+      stroke-width="26"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <circle cx="184" cy="334" r="55" fill="#20D36B" stroke="#101713" stroke-width="12"/>
+  </g>
+  <text
+    x="400"
+    y="236"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="184"
+    font-weight="700"
+    letter-spacing="-8"
+    fill="#101713"
+  >Recordock</text>
+</svg>
