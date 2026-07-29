@@ -65,6 +65,7 @@ async function setErrorState(
     startedAt: null,
     filename: null,
     fileSizeBytes: null,
+    hasAudio: null,
     errorMessage,
   });
 
@@ -115,14 +116,15 @@ async function sendToOffscreen(
   )) as MessageResponse;
 }
 async function recoverInterruptedRecording(): Promise<RecordingState> {
-  const recoveredState: RecordingState = {
-    status: "error",
-    startedAt: null,
-    filename: null,
-    fileSizeBytes: null,
-    errorMessage:
-      "The previous recording session ended unexpectedly. Start a new recording.",
-  };
+    const recoveredState: RecordingState = {
+      status: "error",
+      startedAt: null,
+      filename: null,
+      fileSizeBytes: null,
+      hasAudio: null,
+      errorMessage:
+        "The previous recording session ended unexpectedly. Start a new recording.",
+    };
 
   await setRecordingState(recoveredState);
   await clearBadge();
@@ -179,8 +181,10 @@ async function reconcileRecordingState(): Promise<RecordingState> {
   }
 }
 
-async function startRecording(): Promise<MessageResponse> {
-  const currentState = await getRecordingState();
+async function startRecording(
+  captureAudio: boolean,
+): Promise<MessageResponse> {
+    const currentState = await getRecordingState();
 
   if (
     currentState.status === "selecting" ||
@@ -193,13 +197,14 @@ async function startRecording(): Promise<MessageResponse> {
     };
   }
 
-  await setRecordingState({
-    status: "selecting",
-    startedAt: null,
-    filename: null,
-    fileSizeBytes: null,
-    errorMessage: null,
-  });
+    await setRecordingState({
+      status: "selecting",
+      startedAt: null,
+      filename: null,
+      fileSizeBytes: null,
+      hasAudio: null,
+      errorMessage: null,
+    });
 
   try {
     await ensureOffscreenDocument();
@@ -207,6 +212,7 @@ async function startRecording(): Promise<MessageResponse> {
     const response = await sendToOffscreen({
       target: "offscreen",
       type: "START_MEDIA_RECORDER",
+      captureAudio,
     });
 
     if (!response.ok) {
@@ -318,7 +324,7 @@ async function handleMessage(
       };
 
     case "START_RECORDING":
-      return startRecording();
+      return startRecording(message.captureAudio);
 
     case "STOP_RECORDING":
       return stopRecording();
@@ -329,6 +335,7 @@ async function handleMessage(
         startedAt: message.startedAt,
         filename: null,
         fileSizeBytes: null,
+        hasAudio: message.hasAudio,
         errorMessage: null,
       });
 
@@ -338,12 +345,15 @@ async function handleMessage(
         ok: true,
       };
 
-    case "RECORDING_READY":
+    case "RECORDING_READY": {
+      const currentState = await getRecordingState();
+
       await setRecordingState({
         status: "ready",
         startedAt: null,
         filename: message.filename,
         fileSizeBytes: message.fileSizeBytes,
+        hasAudio: currentState.hasAudio,
         errorMessage: null,
       });
 
@@ -352,12 +362,19 @@ async function handleMessage(
       return {
         ok: true,
       };
+    }
 
     case "RECORDING_FAILED":
       await setErrorState(message.errorMessage);
 
       return {
         ok: true,
+      };
+
+    default:
+      return {
+        ok: false,
+        error: "Unsupported Recordock background message.",
       };
   }
 }

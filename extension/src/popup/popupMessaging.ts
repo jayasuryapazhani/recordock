@@ -28,15 +28,19 @@ export async function getRecordingState(): Promise<RecordingState> {
   return response.state;
 }
 
-export async function requestStartRecording(): Promise<void> {
+export async function requestStartRecording(
+  captureAudio: boolean,
+): Promise<void> {
   const response = await sendToBackground({
     target: "background",
     type: "START_RECORDING",
+    captureAudio,
   });
 
   if (!response.ok) {
     throw new Error(
-      response.error ?? "Recordock could not start recording.",
+      response.error ??
+        "Recordock could not start recording.",
     );
   }
 }

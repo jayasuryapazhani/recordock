@@ -62,6 +62,8 @@ function App() {
   const [previewError, setPreviewError] = useState<
     string | null
   >(null);
+const [captureAudio, setCaptureAudio] =
+  useState(true);
 
   useEffect(() => {
     void getRecordingState()
@@ -77,6 +79,7 @@ function App() {
           startedAt: null,
           filename: null,
           fileSizeBytes: null,
+          hasAudio: null,
           errorMessage,
         });
       });
@@ -210,11 +213,12 @@ function App() {
       startedAt: null,
       filename: null,
       fileSizeBytes: null,
+      hasAudio: null,
       errorMessage: null,
     });
 
     try {
-      await requestStartRecording();
+await requestStartRecording(captureAudio);
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -237,6 +241,7 @@ function App() {
         startedAt: null,
         filename: null,
         fileSizeBytes: null,
+        hasAudio: null,
         errorMessage,
       });
     }
@@ -264,6 +269,7 @@ function App() {
           startedAt: null,
           filename: null,
           fileSizeBytes: null,
+          hasAudio: null,
           errorMessage,
         });
       },
@@ -376,7 +382,21 @@ const handleExpand = (): void => {
             <div className="recording-timer">
               {formatDuration(elapsedSeconds)}
             </div>
+              <p
+                className={`audio-status ${
+                  recordingState.hasAudio
+                    ? "audio-status--included"
+                    : "audio-status--video-only"
+                }`}
+              >
+                <span aria-hidden="true">
+                  {recordingState.hasAudio ? "●" : "○"}
+                </span>
 
+                {recordingState.hasAudio
+                  ? "Audio captured"
+                  : "Video only"}
+              </p>
             <button
               className="primary-button primary-button--stop"
               type="button"
@@ -394,8 +414,9 @@ const handleExpand = (): void => {
             </h2>
 
             <p className="state-message">
-              Select a browser tab, application window,
-              or monitor in Chrome’s screen picker.
+              Select what to record. To include sound,
+              enable Share tab audio or Share system audio
+              in Chrome’s picker when available.
             </p>
           </>
         )}
@@ -438,6 +459,12 @@ const handleExpand = (): void => {
                 </p>
               )}
             </div>
+              <p>
+                <strong>Audio:</strong>{" "}
+                {recordingState.hasAudio
+                  ? "Included"
+                  : "Video only"}
+              </p>            
 
             {previewLoading && (
               <p className="state-message">
@@ -526,7 +553,48 @@ const handleExpand = (): void => {
                   </li>
                 ))}
               </ul>
+                <fieldset className="audio-options">
+                  <legend>Recording audio</legend>
 
+                  <label className="audio-option">
+                    <input
+                      type="radio"
+                      name="recording-audio"
+                      checked={captureAudio}
+                      onChange={() => {
+                        setCaptureAudio(true);
+                      }}
+                    />
+
+                    <span>
+                      <strong>Capture available audio</strong>
+
+                      <small>
+                        Request tab or system audio. You must also
+                        enable audio in Chrome’s screen picker.
+                      </small>
+                    </span>
+                  </label>
+
+                  <label className="audio-option">
+                    <input
+                      type="radio"
+                      name="recording-audio"
+                      checked={!captureAudio}
+                      onChange={() => {
+                        setCaptureAudio(false);
+                      }}
+                    />
+
+                    <span>
+                      <strong>No audio</strong>
+
+                      <small>
+                        Record the selected screen as video only.
+                      </small>
+                    </span>
+                  </label>
+                </fieldset>
               <button
                 className="primary-button"
                 type="button"
