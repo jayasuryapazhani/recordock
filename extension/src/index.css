@@ -1,6 +1,6 @@
 :root {
-  color: #f8fafc;
-  background: #0b1120;
+  color: #181a18;
+  background: #f4f4f1;
   font-family:
     Inter,
     ui-sans-serif,
@@ -11,6 +11,30 @@
     sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --background: #f4f4f1;
+  --surface: #ffffff;
+  --surface-muted: #e6e6e6;
+
+  --text: #181a18;
+  --text-soft: #666a65;
+  --text-light: #f8f8f5;
+
+  --border: #d5d5d0;
+  --border-strong: #b9b9b3;
+
+  --accent: #bcfd4c;
+  --accent-hover: #adf037;
+  --accent-soft: #efffd3;
+  --accent-dark: #5f850e;
+
+  --dark: #1d201d;
+  --dark-soft: #303330;
+
+  --danger: #f14f58;
+  --danger-soft: #fff0f1;
 }
 
 * {
@@ -26,22 +50,93 @@ body,
   margin: 0;
 }
 
+html {
+  background: var(--background);
+}
+
 body {
   max-height: 600px;
   overflow-x: hidden;
   overflow-y: auto;
+  color: var(--text);
   background:
     radial-gradient(
-      circle at 80% 0%,
-      rgb(37 99 235 / 13%),
-      transparent 35%
+      circle at 92% 0%,
+      rgb(188 253 76 / 12%),
+      transparent 34%
     ),
-    #0b1120;
+    var(--background);
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 button,
 input,
 select,
 textarea {
-  font: inherit;
+  font-size: inherit;
+}
+
+button,
+label,
+input,
+video {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+input:focus-visible,
+video:focus-visible {
+  outline: 3px solid rgb(188 253 76 / 55%);
+  outline-offset: 2px;
+}
+
+button {
+  border: 0;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+}
+
+::selection {
+  color: var(--text);
+  background: var(--accent);
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid var(--background);
+  border-radius: 999px;
+  background: #a9aaa5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #777a75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
