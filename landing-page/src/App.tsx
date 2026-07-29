@@ -55,9 +55,9 @@ const features = [
   },
   {
     number: "06",
-    title: "Open and transparent",
+    title: "Free version on GitHub",
     description:
-      "The Recordock source code and technical architecture are available publicly on GitHub.",
+      "Explore the source code for Recordock's free version. Premium features and services will be developed separately.",
   },
 ];
 
@@ -1105,12 +1105,12 @@ function App() {
                     04
                   </span>
 
-                  <h3>Open source</h3>
+                    <h3>Free version code</h3>
 
-                  <p>
-                    Review the implementation and technical architecture
-                    on GitHub.
-                  </p>
+                    <p>
+                      Review the free version implementation on GitHub.
+                      Premium product code will remain private.
+                    </p>
                 </article>
               </div>
           </div>
