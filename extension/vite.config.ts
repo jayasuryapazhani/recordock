@@ -10,14 +10,15 @@ export default defineConfig({
 
   build: {
     rollupOptions: {
-      input: {
-        popup: resolve(projectRoot, "index.html"),
-        offscreen: resolve(projectRoot, "offscreen.html"),
-        background: resolve(
-          projectRoot,
-          "src/background/serviceWorker.ts",
-        ),
-      },
+              input: {
+                popup: resolve(projectRoot, "index.html"),
+                preview: resolve(projectRoot, "preview.html"),
+                offscreen: resolve(projectRoot, "offscreen.html"),
+                background: resolve(
+                  projectRoot,
+                  "src/background/serviceWorker.ts",
+                ),
+              },
 
       output: {
         entryFileNames: (chunkInfo) => {

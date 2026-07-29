@@ -1,0 +1,175 @@
+:root {
+  color: #f8fafc;
+  background: #020617;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#preview-root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #020617;
+}
+
+button {
+  font: inherit;
+}
+
+.full-preview {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgb(37 99 235 / 14%),
+      transparent 38%
+    ),
+    #020617;
+}
+
+.full-preview__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #1e293b;
+  background: rgb(2 6 23 / 92%);
+}
+
+.full-preview__eyebrow {
+  margin: 0 0 3px;
+  color: #60a5fa;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.full-preview__header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.full-preview__metadata {
+  margin: 5px 0 0;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.full-preview__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.preview-button {
+  min-width: 100px;
+  min-height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.preview-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.preview-button--primary {
+  border: 1px solid #2563eb;
+  color: #ffffff;
+  background: #2563eb;
+}
+
+.preview-button--secondary {
+  border: 1px solid #475569;
+  color: #e2e8f0;
+  background: #1e293b;
+}
+
+.full-preview__player {
+  display: grid;
+  min-height: 0;
+  place-items: center;
+  padding: 20px;
+}
+
+.full-preview__video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  background: #000000;
+  object-fit: contain;
+}
+
+.full-preview__loading {
+  display: grid;
+  place-items: center;
+  color: #94a3b8;
+}
+
+.full-preview__spinner {
+  width: 38px;
+  height: 38px;
+  border: 4px solid #334155;
+  border-top-color: #60a5fa;
+  border-radius: 50%;
+  animation: preview-spin 0.8s linear infinite;
+}
+
+.full-preview__error {
+  max-width: 560px;
+  padding: 16px;
+  border: 1px solid rgb(239 68 68 / 42%);
+  border-radius: 12px;
+  color: #fecaca;
+  background: rgb(127 29 29 / 26%);
+  text-align: center;
+}
+
+.full-preview__footer {
+  padding: 10px 20px;
+  border-top: 1px solid #1e293b;
+  color: #64748b;
+  background: rgb(2 6 23 / 92%);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.full-preview__footer kbd {
+  padding: 2px 5px;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  color: #cbd5e1;
+  background: #1e293b;
+  font: inherit;
+}
+
+@keyframes preview-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

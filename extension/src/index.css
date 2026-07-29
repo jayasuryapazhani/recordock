@@ -20,14 +20,16 @@
 html,
 body,
 #root {
-  width: 360px;
-  min-width: 360px;
+  width: 420px;
+  min-width: 420px;
   min-height: 460px;
   margin: 0;
 }
 
 body {
-  overflow: hidden;
+  max-height: 600px;
+  overflow-x: hidden;
+  overflow-y: auto;
   background:
     radial-gradient(
       circle at 80% 0%,

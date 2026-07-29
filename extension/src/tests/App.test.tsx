@@ -31,15 +31,15 @@ describe("Recordock idle popup", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps the recording button disabled", () => {
-    render(<App />);
+it("enables the recording button", () => {
+  render(<App />);
 
-    expect(
-      screen.getByRole("button", {
-        name: "Start Recording",
-      }),
-    ).toBeDisabled();
-  });
+  expect(
+    screen.getByRole("button", {
+      name: "Start Recording",
+    }),
+  ).toBeEnabled();
+});
 
   it("displays the local privacy message", () => {
     render(<App />);
