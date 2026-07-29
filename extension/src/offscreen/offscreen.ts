@@ -6,7 +6,7 @@ import type {
   OffscreenEvent,
   RecorderRuntimeStatus,
 } from "../types/messages";
-
+import { generateRecordingFilename } from "../utils/generateRecordingFilename";
 let capturedStream: MediaStream | null = null;
 let mediaRecorder: MediaRecorder | null = null;
 let recordingChunks: Blob[] = [];
@@ -42,27 +42,6 @@ function selectSupportedMimeType(
 }
 
 
-function padNumber(value: number): string {
-  return value.toString().padStart(2, "0");
-}
-
-function generateRecordingFilename(): string {
-  const now = new Date();
-
-  const date = [
-    now.getFullYear(),
-    padNumber(now.getMonth() + 1),
-    padNumber(now.getDate()),
-  ].join("");
-
-  const time = [
-    padNumber(now.getHours()),
-    padNumber(now.getMinutes()),
-    padNumber(now.getSeconds()),
-  ].join("");
-
-  return `recordock-${date}-${time}.webm`;
-}
 
 function stopCapturedTracks(): void {
   capturedStream?.getTracks().forEach((track) => {

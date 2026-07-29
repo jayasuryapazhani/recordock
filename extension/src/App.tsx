@@ -17,30 +17,14 @@ import {
   RECORDING_STATE_KEY,
   type RecordingState,
 } from "./types/recording";
-
+import { formatDuration } from "./utils/formatDuration";
+import { formatFileSize } from "./utils/formatFileSize";
 const supportedSources = [
   "Browser tab",
   "Application window",
   "Complete monitor",
 ];
 
-function formatDuration(totalSeconds: number): string {
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor(
-    (totalSeconds % 3600) / 60,
-  );
-  const seconds = totalSeconds % 60;
-
-  return [hours, minutes, seconds]
-    .map((value) => value.toString().padStart(2, "0"))
-    .join(":");
-}
-
-function formatFileSize(bytes: number): string {
-  const megabytes = bytes / (1024 * 1024);
-
-  return `${megabytes.toFixed(2)} MB`;
-}
 
 function App() {
   const [recordingState, setRecordingState] =
