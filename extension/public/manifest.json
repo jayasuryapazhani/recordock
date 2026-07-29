@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Recordock - Screen Recorder",
+  "short_name": "Recordock",
+  "version": "0.1.0",
+  "minimum_chrome_version": "116",
+  "description": "Record browser tabs, application windows, or screens and save recordings locally.",
+  "action": {
+    "default_title": "Open Recordock",
+    "default_popup": "index.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "offscreen",
+    "storage"
+  ]
+}
