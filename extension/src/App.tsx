@@ -647,80 +647,34 @@ function App() {
                 ))}
               </ul>
 
-              <fieldset className="recording-options">
-                <legend>Recording options</legend>
+                <fieldset className="recording-options">
+                  <legend>Recording options</legend>
 
-                <label
-                  className={`recording-option ${
-                    captureAudio
-                      ? "recording-option--selected"
-                      : ""
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={captureAudio}
-                    onChange={(event) => {
-                      setCaptureAudio(
-                        event.target.checked,
-                      );
-                    }}
-                  />
+                  <label
+                    className={`recording-option ${
+                      captureAudio
+                        ? "recording-option--selected"
+                        : ""
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={captureAudio}
+                      onChange={(event) => {
+                        setCaptureAudio(event.target.checked);
+                      }}
+                    />
 
-                  <span className="option-copy">
-                    <strong>Screen audio</strong>
+                    <span className="option-copy">
+                      <strong>Screen audio</strong>
 
-                    <small>
-                      Request available tab or system sound
-                      from the selected source.
-                    </small>
-                  </span>
-                </label>
-
-                <label className="recording-option recording-option--disabled">
-                  <input
-                    type="checkbox"
-                    disabled
-                  />
-
-                  <span className="option-copy">
-                    <strong>
-                      Microphone
-
-                      <span className="coming-soon">
-                        Later
-                      </span>
-                    </strong>
-
-                    <small>
-                      Microphone capture will be added in a
-                      later Recordock release.
-                    </small>
-                  </span>
-                </label>
-
-                <label className="recording-option recording-option--disabled">
-                  <input
-                    type="checkbox"
-                    disabled
-                  />
-
-                  <span className="option-copy">
-                    <strong>
-                      Camera overlay
-
-                      <span className="coming-soon">
-                        Later
-                      </span>
-                    </strong>
-
-                    <small>
-                      Add a movable camera bubble in a
-                      future release.
-                    </small>
-                  </span>
-                </label>
-              </fieldset>
+                      <small>
+                        Request available tab or system sound from the
+                        selected source.
+                      </small>
+                    </span>
+                  </label>
+                </fieldset>
 
               <button
                 className="primary-button"

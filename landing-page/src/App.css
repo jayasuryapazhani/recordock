@@ -170,6 +170,10 @@
   margin-top: 34px;
 }
 
+.primary-button{
+  cursor: pointer;
+}
+
 .primary-button,
 .secondary-button,
 .cta-primary,
