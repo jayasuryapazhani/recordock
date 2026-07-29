@@ -71,19 +71,24 @@ async function setErrorState(
   await clearBadge();
 }
 
-async function ensureOffscreenDocument(): Promise<void> {
+async function hasOffscreenDocument(): Promise<boolean> {
   const offscreenUrl = chrome.runtime.getURL(
     OFFSCREEN_DOCUMENT_PATH,
   );
 
-  const existingContexts = await chrome.runtime.getContexts({
-    contextTypes: ["OFFSCREEN_DOCUMENT"],
-    documentUrls: [offscreenUrl],
-  });
+  const existingContexts =
+    await chrome.runtime.getContexts({
+      contextTypes: ["OFFSCREEN_DOCUMENT"],
+      documentUrls: [offscreenUrl],
+    });
 
-  if (existingContexts.length > 0) {
-    return;
-  }
+  return existingContexts.length > 0;
+}
+
+async function ensureOffscreenDocument(): Promise<void> {
+    if (await hasOffscreenDocument()) {
+      return;
+    }
 
   if (!creatingOffscreenDocument) {
     creatingOffscreenDocument = chrome.offscreen
@@ -108,6 +113,70 @@ async function sendToOffscreen(
   return (await chrome.runtime.sendMessage(
     message,
   )) as MessageResponse;
+}
+async function recoverInterruptedRecording(): Promise<RecordingState> {
+  const recoveredState: RecordingState = {
+    status: "error",
+    startedAt: null,
+    filename: null,
+    fileSizeBytes: null,
+    errorMessage:
+      "The previous recording session ended unexpectedly. Start a new recording.",
+  };
+
+  await setRecordingState(recoveredState);
+  await clearBadge();
+
+  return recoveredState;
+}
+
+async function reconcileRecordingState(): Promise<RecordingState> {
+  const currentState = await getRecordingState();
+
+  if (
+    currentState.status !== "recording" &&
+    currentState.status !== "stopping"
+  ) {
+    return currentState;
+  }
+
+  const offscreenExists =
+    await hasOffscreenDocument();
+
+  if (!offscreenExists) {
+    return recoverInterruptedRecording();
+  }
+
+  /*
+   * During the stopping state, MediaRecorder may already be
+   * inactive while the Blob is still being generated and saved.
+   * Therefore, the presence of the offscreen document is enough.
+   */
+  if (currentState.status === "stopping") {
+    return currentState;
+  }
+
+  try {
+    const response = await sendToOffscreen({
+      target: "offscreen",
+      type: "GET_MEDIA_RECORDER_STATUS",
+    });
+
+    const recorderIsActive =
+      response.ok &&
+      (response.recorderStatus === "recording" ||
+        response.recorderStatus === "paused");
+
+    if (!recorderIsActive) {
+      return recoverInterruptedRecording();
+    }
+
+    await showRecordingBadge();
+
+    return currentState;
+  } catch {
+    return recoverInterruptedRecording();
+  }
 }
 
 async function startRecording(): Promise<MessageResponse> {
@@ -181,12 +250,19 @@ async function startRecording(): Promise<MessageResponse> {
 async function stopRecording(): Promise<MessageResponse> {
   const currentState = await getRecordingState();
 
-  if (currentState.status !== "recording") {
-    return {
-      ok: false,
-      error: "There is no active recording to stop.",
-    };
-  }
+    if (currentState.status === "stopping") {
+      return {
+        ok: false,
+        error: "The recording is already stopping.",
+      };
+    }
+
+    if (currentState.status !== "recording") {
+      return {
+        ok: false,
+        error: "There is no active recording to stop.",
+      };
+    }
 
   await setRecordingState({
     ...currentState,
@@ -238,7 +314,7 @@ async function handleMessage(
     case "GET_RECORDING_STATE":
       return {
         ok: true,
-        state: await getRecordingState(),
+        state: await reconcileRecordingState(),
       };
 
     case "START_RECORDING":
@@ -287,11 +363,21 @@ async function handleMessage(
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  void resetRecordingState();
+  void resetRecordingState().catch((error: unknown) => {
+    console.error(
+      "Recordock could not initialize its recording state.",
+      error,
+    );
+  });
 });
 
 chrome.runtime.onStartup.addListener(() => {
-  void resetRecordingState();
+  void resetRecordingState().catch((error: unknown) => {
+    console.error(
+      "Recordock could not reset its startup state.",
+      error,
+    );
+  });
 });
 
 chrome.runtime.onMessage.addListener(

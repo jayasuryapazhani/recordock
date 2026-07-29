@@ -5,47 +5,56 @@ import {
   beforeEach,
   vi,
 } from "vitest";
-import { IDLE_RECORDING_STATE } from "../types/recording";
 
-const sendMessageMock = vi.fn();
 const addStorageListenerMock = vi.fn();
 const removeStorageListenerMock = vi.fn();
+const createWindowMock = vi.fn();
 
 Object.defineProperty(globalThis, "chrome", {
   configurable: true,
   value: {
     runtime: {
-      sendMessage: sendMessageMock,
+      sendMessage: vi.fn(),
+      getURL: vi.fn(
+        (path: string) =>
+          `chrome-extension://recordock/${path}`,
+      ),
     },
+
     storage: {
       onChanged: {
         addListener: addStorageListenerMock,
         removeListener: removeStorageListenerMock,
       },
     },
+
+    windows: {
+      create: createWindowMock,
+    },
   },
 });
 
-beforeEach(() => {
-  sendMessageMock.mockImplementation(
-    async (message: { type?: string }) => {
-      if (message.type === "GET_RECORDING_STATE") {
-        return {
-          ok: true,
-          state: {
-            ...IDLE_RECORDING_STATE,
-          },
-        };
-      }
+Object.defineProperty(URL, "createObjectURL", {
+  configurable: true,
+  writable: true,
+  value: vi.fn(() => "blob:recordock-preview"),
+});
 
-      return {
-        ok: true,
-      };
-    },
-  );
+Object.defineProperty(URL, "revokeObjectURL", {
+  configurable: true,
+  writable: true,
+  value: vi.fn(),
+});
+
+beforeEach(() => {
+  createWindowMock.mockResolvedValue({
+    id: 1,
+  });
 });
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.clearAllMocks();
+  vi.useRealTimers();
 });

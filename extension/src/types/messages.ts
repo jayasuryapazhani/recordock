@@ -1,5 +1,10 @@
 import type { RecordingState } from "./recording";
 
+export type RecorderRuntimeStatus =
+  | "inactive"
+  | "recording"
+  | "paused";
+
 export type BackgroundRequest =
   | {
       target: "background";
@@ -22,6 +27,10 @@ export type OffscreenCommand =
   | {
       target: "offscreen";
       type: "STOP_MEDIA_RECORDER";
+    }
+  | {
+      target: "offscreen";
+      type: "GET_MEDIA_RECORDER_STATUS";
     };
 
 export type OffscreenEvent =
@@ -50,5 +59,6 @@ export type RecordockMessage =
 export interface MessageResponse {
   ok: boolean;
   state?: RecordingState;
+  recorderStatus?: RecorderRuntimeStatus;
   error?: string;
 }
