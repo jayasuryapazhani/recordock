@@ -573,8 +573,9 @@ function App() {
           <a href="#how-it-works">
             How it works
           </a>
-          <a href="#privacy">Privacy</a>
-          <a href="#faq">FAQ</a>
+            <a href="#privacy">Privacy</a>
+            <a href="/privacy.html">Privacy policy</a>
+            <a href="#faq">FAQ</a>
         </nav>
 
         <a
@@ -1173,15 +1174,13 @@ function App() {
                 cloud upload.
               </p>
 
-              <a
-                className="privacy-link"
-                href={`${GITHUB_URL}/blob/main/docs/privacy-policy.md`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Read the privacy policy
-                <span aria-hidden="true">↗</span>
-              </a>
+                <a
+                  className="privacy-link"
+                  href="/privacy.html"
+                >
+                  Read the privacy policy
+                  <span aria-hidden="true">→</span>
+                </a>
             </div>
 
             <div className="privacy-checklist">
