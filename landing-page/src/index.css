@@ -10,25 +10,104 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
+  color: #181a18;
+  background: #f4f4f1;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 96px;
+}
+
 body {
+  min-width: 320px;
   min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background: #f4f4f1;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 button,
+input,
+select,
+textarea {
+  font-size: inherit;
+}
+
+button,
+a,
+label,
 summary,
-a {
+input {
   -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  border: 0;
+}
+
+a {
+  color: inherit;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
 }
 
 button:focus-visible,
 a:focus-visible,
-summary:focus-visible {
-  outline: 3px solid rgb(32 211 107 / 35%);
-  outline-offset: 4px;
+input:focus-visible,
+summary:focus-visible,
+video:focus-visible {
+  outline: 3px solid rgb(188 253 76 / 55%);
+  outline-offset: 3px;
+}
+
+::selection {
+  color: #181a18;
+  background: #bcfd4c;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f4f4f1;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid #f4f4f1;
+  border-radius: 999px;
+  background: #a9aaa5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #777a75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
