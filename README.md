@@ -322,19 +322,53 @@ The deployed landing page must use HTTPS for browser screen-capture functionalit
 
 ## Screenshots
 
-Final repository screenshots will be added under:
+### Landing Page
 
-```text
-docs/screenshots/
-```
+<p align="center">
+  <img
+    src="docs/screenshots/recordock-landing-page.png"
+    alt="Recordock landing page with the local browser screen recorder"
+    width="100%"
+  />
+</p>
 
-Planned screenshots:
+### Chrome Extension
 
-- Landing page and browser recorder
-- Extension idle state
-- Active recording state
-- Completed recording preview
-- Expanded preview window
+<p align="center">
+  <img
+    src="docs/screenshots/recordock-extension-idle.png"
+    alt="Recordock extension ready to begin a recording"
+    width="31%"
+  />
+  &nbsp;
+  <img
+    src="docs/screenshots/recordock-recording-active.png"
+    alt="Recordock extension showing an active screen recording"
+    width="31%"
+  />
+  &nbsp;
+  <img
+    src="docs/screenshots/recordock-recording-ready.png"
+    alt="Recordock extension showing a completed recording preview"
+    width="31%"
+  />
+</p>
+
+<p align="center">
+  <sub>
+    Ready to record · Recording in progress · Recording completed
+  </sub>
+</p>
+
+### Expanded Recording Preview
+
+<p align="center">
+  <img
+    src="docs/screenshots/recordock-expanded-preview.png"
+    alt="Recordock expanded preview with recording details and download controls"
+    width="100%"
+  />
+</p>
 
 ## Current limitations
 
