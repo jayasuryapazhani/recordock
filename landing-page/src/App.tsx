@@ -8,6 +8,9 @@ import "./App.css";
 const GITHUB_URL =
   "https://github.com/jayasuryapazhani/recordock";
 
+const CHROME_WEB_STORE_URL =
+  "https://chromewebstore.google.com/detail/lcnalkobdoddfeobfgpdoekheigmcgob";
+
 type WebRecorderStatus =
   | "idle"
   | "selecting"
@@ -573,9 +576,17 @@ function App() {
           <a href="#how-it-works">
             How it works
           </a>
-            <a href="#privacy">Privacy</a>
-            <a href="/privacy.html">Privacy policy</a>
-            <a href="#faq">FAQ</a>
+              <a href="#privacy">Privacy</a>
+              <a href="/privacy.html">Privacy policy</a>
+              <a href="#faq">FAQ</a>
+
+              <a
+                href={CHROME_WEB_STORE_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Chrome Web Store
+              </a>
         </nav>
 
         <a
@@ -613,15 +624,16 @@ function App() {
             </p>
 
               <div className="hero-actions">
-                <button
+                <a
                   className="primary-button hero-primary-button"
-                  type="button"
-                  disabled
+                  href={CHROME_WEB_STORE_URL}
+                  target="_blank"
+                  rel="noreferrer"
                   aria-describedby="browser-release-status"
                 >
-                  Add to browser
+                  Add to Chrome
                   <span aria-hidden="true">↗</span>
-                </button>
+                </a>
 
                 <a
                   className="secondary-button"
@@ -634,12 +646,12 @@ function App() {
                 </a>
               </div>
 
-              <p
-                id="browser-release-status"
-                className="hero-release-status"
-              >
-                Chrome Web Store release coming soon.
-              </p>
+                <p
+                  id="browser-release-status"
+                  className="hero-release-status"
+                >
+                  Available now on the Chrome Web Store.
+                </p>
 
             <div
               className="hero-trust-list"
@@ -1265,24 +1277,24 @@ function App() {
               the file directly to your computer.
             </p>
 
-            <div className="cta-actions">
-              <a
-                className="cta-primary"
-                href="#web-recorder"
-              >
-                Start a local recording
-              </a>
+              <div className="cta-actions">
+                <a
+                  className="cta-primary"
+                  href={CHROME_WEB_STORE_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Add to Chrome
+                  <span aria-hidden="true">↗</span>
+                </a>
 
-              <a
-                className="cta-secondary"
-                href={GITHUB_URL}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Follow development on GitHub
-                <span aria-hidden="true">↗</span>
-              </a>
-            </div>
+                <a
+                  className="cta-secondary"
+                  href="#web-recorder"
+                >
+                  Try the web recorder
+                </a>
+              </div>
           </div>
         </section>
       </main>
@@ -1317,7 +1329,16 @@ function App() {
               How it works
             </a>
             <a href="#privacy">Privacy</a>
+            <a href="/privacy.html">Privacy policy</a>
             <a href="#faq">FAQ</a>
+
+            <a
+              href={CHROME_WEB_STORE_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Chrome Web Store
+            </a>
 
             <a
               href={GITHUB_URL}
