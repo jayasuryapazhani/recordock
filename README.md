@@ -2,6 +2,10 @@
 
 **Record your screen. Keep it local.**
 
+[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/lcnalkobdoddfeobfgpdoekheigmcgob) ·
+[Live website](https://recordock.vercel.app/) ·
+[Privacy policy](https://recordock.vercel.app/privacy.html)
+
 Recordock is a privacy-focused screen recorder for Chrome. It can capture a browser tab, application window, or monitor, optionally include available source audio, preview the completed recording, and save it locally as a WebM file.
 
 The repository contains:
@@ -15,7 +19,9 @@ The repository contains:
 
 `0.1.0`
 
-Recordock is under active development. The current implementation supports the complete local recording workflow without requiring an account, backend, or cloud-storage service.
+Recordock is published on the Chrome Web Store and supports the complete local recording workflow without requiring an account, backend, or cloud-storage service.
+
+[**Install Recordock from the Chrome Web Store**](https://chromewebstore.google.com/detail/lcnalkobdoddfeobfgpdoekheigmcgob)
 
 ## Product model
 
@@ -25,6 +31,17 @@ This public repository contains the free version of Recordock. Selected advanced
 
 Premium features, subscription services, payment handling, entitlement verification, and other proprietary components will be maintained separately and will not be included in this public repository.
 
+## Install Recordock
+
+### Chrome Web Store
+
+Install the published extension directly from the Chrome Web Store:
+
+[**Add Recordock to Chrome**](https://chromewebstore.google.com/detail/lcnalkobdoddfeobfgpdoekheigmcgob)
+
+### Manual development installation
+
+Developers can also build the extension locally and load the generated `extension/dist` directory through `chrome://extensions`.
 
 ## Features
 
@@ -397,8 +414,6 @@ Planned future work includes:
 - Recordock Premium subscriptions
 - Premium feature-access controls
 - Secure entitlement verification
-- Chrome Web Store release
-- Deployed landing page
 - Expanded automated test coverage
 
 The exact division between free and premium capabilities will be finalized before the commercial release.
@@ -425,13 +440,14 @@ repository-documentation
 
 The `main` branch contains the integrated current version.
 
-## Repository
+## Links
 
-GitHub:
-
-```text
-https://github.com/jayasuryapazhani/recordock
-```
+- Chrome Web Store: https://chromewebstore.google.com/detail/lcnalkobdoddfeobfgpdoekheigmcgob
+- Website: https://recordock.vercel.app/
+- Privacy policy: https://recordock.vercel.app/privacy.html
+- GitHub: https://github.com/jayasuryapazhani/recordock
+- Support: https://github.com/jayasuryapazhani/recordock/issues
+- Releases: https://github.com/jayasuryapazhani/recordock/releases
 
 ## Rights
 
